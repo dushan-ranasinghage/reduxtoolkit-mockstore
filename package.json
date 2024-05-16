@@ -21,10 +21,12 @@
     "url": "git+https://github.com/dushan-ranasinghage/reduxtoolkit-mockstore.git"
   },
   "keywords": [
-    "boilerplate",
-    "typescript"
+    "reduxjs",
+    "redux-toolkit",
+    "mockstore",
+    "mock-store"
   ],
-  "author": "Dushan Ranasinghe",
+  "author": "Dushan Ranasinghage",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/dushan-ranasinghage/reduxtoolkit-mockstore/issues"
