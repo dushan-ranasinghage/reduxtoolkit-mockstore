@@ -1,7 +1,14 @@
+/**
+ * @file store.test.ts
+ * @description
+ * @author Dushan Ranasinghage
+ * @copyright Copyright 2024 - Dushan Ranasinghage All Rights Reserved.
+ */
+
 import store from '../redux/store';
 import { fetchPosts } from '../redux/postActions';
 
-describe('Test Real Store', () => {
+describe('Store Test Suite', () => {
   it('Should receive 100 posts', async () => {
     await store.dispatch(fetchPosts());
 
