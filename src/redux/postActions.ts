@@ -2,7 +2,7 @@
  * @file actions.ts
  * @description
  * @author Dushan Ranasinghage
- * @copyright Copyright 2024 - ResearchIt All Rights Reserved.
+ * @copyright Copyright 2024 - Dushan Ranasinghage All Rights Reserved.
  */
 
 import axios, { AxiosError } from 'axios';
@@ -16,5 +16,6 @@ export const fetchPosts = createAsyncThunk('posts/fetchAllPosts', async () => {
   } catch (e) {
     const error = e as AxiosError;
     console.error('Error occured while loading fetchPosts', error.message);
+    return error;
   }
 });

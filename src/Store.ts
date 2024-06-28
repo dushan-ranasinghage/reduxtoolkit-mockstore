@@ -2,20 +2,37 @@
  * @file Store.ts
  * @description
  * @author Dushan Ranasinghage
- * @copyright Copyright 2024 - ResearchIt All Rights Reserved.
+ * @copyright Copyright 2024 - Dushan Ranasinghage All Rights Reserved.
  */
 
 import { UnknownAction, configureStore } from '@reduxjs/toolkit';
-import actionListenerMiddleware from './actionListenerMiddleware';
+import { createListenerMiddleware } from '@reduxjs/toolkit';
 
-interface State {
-  actions: UnknownAction[];
-}
+const actionListenerMiddleware = createListenerMiddleware();
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const mockReducer = (state: State = { actions: [] }, action: UnknownAction) => state;
+actionListenerMiddleware.startListening({
+  predicate: () => true, // Always return true to listen to all actions
+  effect: (action, listenerApi) => {
+    listenerApi.dispatch({
+      type: 'STORE_ACTION',
+      payload: action,
+    });
+  },
+});
 
-export function configureMockStore(initialState: State) {
+const mockReducer = (state = { actions: [] }, action: UnknownAction) => {
+  switch (action.type) {
+    case 'STORE_ACTION':
+      return {
+        ...state,
+        actions: [...state.actions, action.payload],
+      };
+    default:
+      return state;
+  }
+};
+
+export function configureMockStore(initialState: any) {
   const store = configureStore({
     reducer: mockReducer,
     preloadedState: initialState,
