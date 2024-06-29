@@ -6,4 +6,3 @@
  */
 
 export * from './Store';
-export * from './StoreNext';

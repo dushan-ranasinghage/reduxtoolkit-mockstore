@@ -1,54 +1,47 @@
 /**
- * @file Store.ts
+ * @file StoreNext.ts
  * @description
  * @author Dushan Ranasinghage
  * @copyright Copyright 2024 - Dushan Ranasinghage All Rights Reserved.
  */
 
-import { UnknownAction, configureStore } from '@reduxjs/toolkit';
-import { createListenerMiddleware } from '@reduxjs/toolkit';
+import { UnknownAction, Reducer } from '@reduxjs/toolkit';
 
-const actionListenerMiddleware = createListenerMiddleware();
-
-actionListenerMiddleware.startListening({
-  predicate: () => true, // Always return true to listen to all actions
-  effect: (action, listenerApi) => {
-    listenerApi.dispatch({
-      type: 'STORE_ACTION',
-      payload: action,
-    });
-  },
-});
-
-const mockReducer = (state = { actions: [] }, action: UnknownAction) => {
-  switch (action.type) {
-    case 'STORE_ACTION':
-      return {
-        ...state,
-        actions: [...state.actions, action.payload],
-      };
-    default:
-      return state;
-  }
-};
-
-export function configureMockStore(initialState: any) {
-  const store = configureStore({
-    reducer: mockReducer,
-    preloadedState: initialState,
-    middleware: (getDefaultMiddleware) =>
-      getDefaultMiddleware({
-        thunk: true,
-        serializableCheck: false,
-        immutableCheck: false,
-      }).prepend(actionListenerMiddleware.middleware),
-    enhancers: (getDefaultEnhancers) => getDefaultEnhancers(),
-  });
-
-  return {
-    ...store,
-    getActions: () => store.getState().actions,
-  };
+interface MockStore {
+  getState: () => any;
+  // eslint-disable-next-line @typescript-eslint/ban-types
+  dispatch: (action: UnknownAction | Function) => Promise<UnknownAction>;
+  getActions: () => UnknownAction[];
+  clearActions: () => void;
 }
 
-export default configureMockStore;
+const createMockStore = (rootReducer: Reducer<any, UnknownAction>, initialState?: Partial<any>): MockStore => {
+  let state: any = rootReducer(initialState as any, {
+    type: 'INIT',
+  });
+
+  let actions: UnknownAction[] = [];
+
+  const store: MockStore = {
+    getState: () => state,
+    // eslint-disable-next-line @typescript-eslint/ban-types
+    dispatch: async (action: UnknownAction | Function) => {
+      if (typeof action === 'function') {
+        const result = await (action as any)(store.dispatch, store.getState);
+        return result;
+      }
+      actions.push(action as UnknownAction);
+      state = rootReducer(state, action as UnknownAction);
+      return action as UnknownAction;
+    },
+    getActions: () => actions,
+    clearActions: () => {
+      actions = [];
+    },
+  };
+
+  return store;
+};
+
+// Export the createMockStore function
+export default createMockStore;

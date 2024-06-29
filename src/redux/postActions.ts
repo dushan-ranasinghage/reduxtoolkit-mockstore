@@ -8,7 +8,7 @@
 import axios, { AxiosError } from 'axios';
 import { createAsyncThunk } from '@reduxjs/toolkit';
 
-export const fetchPosts = createAsyncThunk('posts/fetchAllPosts', async () => {
+export const fetchPosts = createAsyncThunk('posts/fetchPosts', async () => {
   try {
     const response = await axios.get('https://jsonplaceholder.typicode.com/posts');
 

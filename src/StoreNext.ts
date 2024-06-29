@@ -5,37 +5,45 @@
  * @copyright Copyright 2024 - Dushan Ranasinghage All Rights Reserved.
  */
 
-import { UnknownAction, Reducer } from '@reduxjs/toolkit';
+import { Middleware, configureStore, UnknownAction } from '@reduxjs/toolkit';
 
-interface MockStore {
-  getState: () => any;
-  dispatch: (action: UnknownAction) => UnknownAction;
-  getActions: () => UnknownAction[];
-  clearActions: () => void;
+interface State {
+  actions: UnknownAction[];
 }
 
-const createMockStore = (rootReducer: Reducer<any, UnknownAction>, initialState?: Partial<any>): MockStore => {
-  let state: any = rootReducer(initialState as any, {
-    type: 'INIT',
-  });
+const mockReducer = (state = { actions: [] }) => state;
 
-  const actions: UnknownAction[] = [];
+// Custom middleware to track actions
+const trackActionsMiddleware: Middleware<any, State> = (storeAPI) => (next) => (action) => {
+  const state = storeAPI.getState();
+  if (!state.actions) {
+    // Initialize actions array if it doesn't exist
+    state.actions = [];
+  }
+  // Push every action to a specific array in the state
+  state.actions.push(action as UnknownAction);
 
-  const store: MockStore = {
-    getState: () => state,
-    dispatch: (action: UnknownAction) => {
-      actions.push(action);
-      state = rootReducer(state, action);
-      return action;
-    },
-    getActions: () => actions,
-    clearActions: () => {
-      actions.length = 0;
-    },
-  };
-
-  return store;
+  return next(action);
 };
 
-// Export the createMockStore function
-export default createMockStore;
+const mockStore = (initialState: any) => {
+  const store = configureStore({
+    reducer: mockReducer,
+    preloadedState: initialState,
+    middleware: (getDefaultMiddleware) =>
+      getDefaultMiddleware({
+        thunk: true,
+        serializableCheck: false,
+        immutableCheck: false,
+      }).concat(trackActionsMiddleware),
+    enhancers: (getDefaultEnhancers) => getDefaultEnhancers(),
+  });
+
+  return {
+    ...store,
+    // Fallback when redux actions are not captured and undefined
+    getActions: () => (store.getState().actions || []) as UnknownAction[],
+  };
+};
+
+export default mockStore;

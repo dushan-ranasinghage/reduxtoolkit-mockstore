@@ -15,7 +15,7 @@ export interface IPostsState {
   error: any;
 }
 
-const INITIAL_STATE = {
+export const INITIAL_STATE = {
   items: [],
   status: 'idle',
   error: null,
