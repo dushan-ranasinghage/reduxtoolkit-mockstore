@@ -1,37 +1,47 @@
 /**
- * @file Store.ts
+ * @file StoreNext.ts
  * @description
  * @author Dushan Ranasinghage
- * @copyright Copyright 2024 - ResearchIt All Rights Reserved.
+ * @copyright Copyright 2024 - Dushan Ranasinghage All Rights Reserved.
  */
 
-import { UnknownAction, configureStore } from '@reduxjs/toolkit';
-import actionListenerMiddleware from './actionListenerMiddleware';
+import { UnknownAction, Reducer } from '@reduxjs/toolkit';
 
-interface State {
-  actions: UnknownAction[];
+interface MockStore {
+  getState: () => any;
+  // eslint-disable-next-line @typescript-eslint/ban-types
+  dispatch: (action: UnknownAction | Function) => Promise<UnknownAction>;
+  getActions: () => UnknownAction[];
+  clearActions: () => void;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const mockReducer = (state: State = { actions: [] }, action: UnknownAction) => state;
-
-export function configureMockStore(initialState: State) {
-  const store = configureStore({
-    reducer: mockReducer,
-    preloadedState: initialState,
-    middleware: (getDefaultMiddleware) =>
-      getDefaultMiddleware({
-        thunk: true,
-        serializableCheck: false,
-        immutableCheck: false,
-      }).prepend(actionListenerMiddleware.middleware),
-    enhancers: (getDefaultEnhancers) => getDefaultEnhancers(),
+const createMockStore = (rootReducer: Reducer<any, UnknownAction>, initialState?: Partial<any>): MockStore => {
+  let state: any = rootReducer(initialState as any, {
+    type: 'INIT',
   });
 
-  return {
-    ...store,
-    getActions: () => store.getState().actions,
-  };
-}
+  let actions: UnknownAction[] = [];
 
-export default configureMockStore;
+  const store: MockStore = {
+    getState: () => state,
+    // eslint-disable-next-line @typescript-eslint/ban-types
+    dispatch: async (action: UnknownAction | Function) => {
+      if (typeof action === 'function') {
+        const result = await (action as any)(store.dispatch, store.getState);
+        return result;
+      }
+      actions.push(action as UnknownAction);
+      state = rootReducer(state, action as UnknownAction);
+      return action as UnknownAction;
+    },
+    getActions: () => actions,
+    clearActions: () => {
+      actions = [];
+    },
+  };
+
+  return store;
+};
+
+// Export the createMockStore function
+export default createMockStore;
