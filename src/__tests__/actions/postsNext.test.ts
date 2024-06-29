@@ -30,12 +30,12 @@ describe('Post Actions Test Suite', () => {
     expect(actions[0].type).toEqual('posts/fetchPosts/pending');
   });
 
-  it('should handle fetchPosts.fulfilled', () => {
+  it('should handle fetchPosts.fulfilled', async () => {
     const mockPosts = [{ id: 1, title: 'Test Post' }];
 
     const store = mockStore(INITIAL_STATE);
 
-    store.dispatch({
+    await store.dispatch({
       type: 'posts/fetchPosts/fulfilled',
       payload: mockPosts,
     });
@@ -67,7 +67,7 @@ describe('Post Actions Test Suite', () => {
 
     const store = mockStore(INITIAL_STATE);
 
-    return store.dispatch(fetchPosts() as any).then((res) => {
+    return store.dispatch(fetchPosts() as any).then((res: any) => {
       expect(res.payload).toEqual(mockPosts);
     });
   });
@@ -77,7 +77,7 @@ describe('Post Actions Test Suite', () => {
 
     const store = mockStore(INITIAL_STATE);
 
-    return store.dispatch(fetchPosts() as any).catch((result) => {
+    return store.dispatch(fetchPosts() as any).catch((result: any) => {
       // eslint-disable-next-line jest/no-conditional-expect
       expect(result.message).toContain('404');
     });
@@ -95,7 +95,7 @@ describe('Post Actions Test Suite', () => {
     return store
       .dispatch(fetchPosts() as any)
       .unwrap()
-      .catch((result) => {
+      .catch((result: any) => {
         // eslint-disable-next-line jest/no-conditional-expect
         expect(result.message).toEqual(errorMessage);
       });

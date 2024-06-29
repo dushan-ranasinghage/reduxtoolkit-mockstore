@@ -9,8 +9,7 @@ import { UnknownAction, Reducer } from '@reduxjs/toolkit';
 
 interface MockStore {
   getState: () => any;
-  // eslint-disable-next-line @typescript-eslint/ban-types
-  dispatch: (action: UnknownAction | Function) => Promise<UnknownAction>;
+  dispatch: (action: UnknownAction | any) => Promise<UnknownAction>;
   getActions: () => UnknownAction[];
   clearActions: () => void;
 }
@@ -24,8 +23,7 @@ const createMockStore = (rootReducer: Reducer<any, UnknownAction>, initialState?
 
   const store: MockStore = {
     getState: () => state,
-    // eslint-disable-next-line @typescript-eslint/ban-types
-    dispatch: async (action: UnknownAction | Function) => {
+    dispatch: async (action: UnknownAction | any) => {
       if (typeof action === 'function') {
         const result = await (action as any)(store.dispatch, store.getState);
         return result;
