@@ -222,7 +222,7 @@ describe('createMockStore', () => {
     });
 
     it('should handle async thunk actions', async () => {
-      const asyncThunk = async (dispatch: any, getState: any) => {
+      const asyncThunk = async (dispatch: any) => {
         dispatch(counterSlice.actions.increment());
         await new Promise((resolve) => setTimeout(resolve, 10));
         dispatch(counterSlice.actions.increment());
