@@ -1,75 +1,93 @@
 # reduxtoolkit-mockstore
 
-A lightweight mock store utility for testing Redux Toolkit applications. Works seamlessly with both JavaScript and TypeScript projects.
+A simple mock store for testing Redux Toolkit apps. No setup, no hassle - just pass your reducer and start testing.
 
-## Installation
+## Why?
+
+Testing Redux can be annoying. You need to set up a store, configure middleware, handle async thunks... it's a lot. This package gives you a mock store that works exactly like the real thing, but without all the ceremony.
+
+## Install
 
 ```bash
 npm install reduxtoolkit-mockstore
-# or
-yarn add reduxtoolkit-mockstore
 ```
 
-## Features
+## Usage
 
-- ✅ Works with both JavaScript and TypeScript
-- ✅ Supports Redux Toolkit's `combineReducers` and `createSlice`
-- ✅ Tracks all dispatched actions
-- ✅ Supports async thunks and action creators
-- ✅ Type-safe with full TypeScript support
-- ✅ Lightweight and easy to use
-
-## Quick Start
-
-### TypeScript
+### Basic example
 
 ```typescript
-import { createMockStore, MockStore } from 'reduxtoolkit-mockstore';
+import { createMockStore } from 'reduxtoolkit-mockstore';
 import { combineReducers } from '@reduxjs/toolkit';
-import rootReducer from './reducers';
+import counterReducer from './counterSlice';
+import todosReducer from './todosSlice';
 
-describe('My Test Suite', () => {
-  let store: MockStore;
+const rootReducer = combineReducers({
+  counter: counterReducer,
+  todos: todosReducer,
+});
 
-  beforeEach(() => {
-    store = createMockStore(rootReducer);
-  });
-
-  it('should dispatch actions', () => {
+describe('My component', () => {
+  it('dispatches actions correctly', () => {
+    const store = createMockStore(rootReducer);
+    
     store.dispatch({ type: 'counter/increment' });
     
+    // Check what actions were dispatched
     const actions = store.getActions();
     expect(actions[0].type).toBe('counter/increment');
     
+    // Check the state
     const state = store.getState();
     expect(state.counter.value).toBe(1);
   });
 });
 ```
 
-### JavaScript
+### With initial state
 
-```javascript
-const { createMockStore } = require('reduxtoolkit-mockstore');
-const { combineReducers } = require('@reduxjs/toolkit');
-const rootReducer = require('./reducers');
+Sometimes you want to start with a specific state:
 
-describe('My Test Suite', () => {
-  let store;
+```typescript
+const store = createMockStore(rootReducer, {
+  counter: { value: 10 },
+  todos: { items: [] }
+});
+```
 
-  beforeEach(() => {
-    store = createMockStore(rootReducer);
-  });
+### Testing async thunks
 
-  it('should dispatch actions', () => {
-    store.dispatch({ type: 'counter/increment' });
-    
-    const actions = store.getActions();
-    expect(actions[0].type).toBe('counter/increment');
-    
-    const state = store.getState();
-    expect(state.counter.value).toBe(1);
-  });
+Works with async thunks too:
+
+```typescript
+it('handles async thunks', async () => {
+  const store = createMockStore(rootReducer);
+  
+  await store.dispatch(fetchUserData());
+  
+  const actions = store.getActions();
+  expect(actions[0].type).toBe('user/fetch/pending');
+  expect(actions[1].type).toBe('user/fetch/fulfilled');
+});
+```
+
+### Clearing actions between tests
+
+```typescript
+beforeEach(() => {
+  store = createMockStore(rootReducer);
+});
+
+it('test 1', () => {
+  store.dispatch(someAction());
+  expect(store.getActions()).toHaveLength(1);
+});
+
+it('test 2', () => {
+  // Actions are cleared automatically with new store
+  // Or manually:
+  store.clearActions();
+  expect(store.getActions()).toHaveLength(0);
 });
 ```
 
@@ -77,36 +95,43 @@ describe('My Test Suite', () => {
 
 ### `createMockStore(rootReducer, initialState?)`
 
-Creates a mock Redux store for testing.
+Creates a mock store. Pass your root reducer (from `combineReducers`) and optionally an initial state.
 
-**Parameters:**
-- `rootReducer` (Reducer): The root reducer function (usually from `combineReducers`)
-- `initialState` (optional): Initial state object
+**Returns a store with:**
 
-**Returns:** `MockStore` object with:
-- `getState()`: Returns the current state
-- `dispatch(action)`: Dispatches an action and updates state (supports both plain actions and thunks)
-- `getActions()`: Returns array of all dispatched actions
-- `clearActions()`: Clears the actions array
+- `getState()` - Get the current state
+- `dispatch(action)` - Dispatch an action (works with plain actions and thunks)
+- `getActions()` - Get all dispatched actions
+- `clearActions()` - Clear the actions array
 
-### `mockStore(initialState)`
+## TypeScript
 
-Alternative API that works with initial state directly (uses Redux Toolkit's `configureStore` internally).
+Full TypeScript support included:
 
-## Examples
+```typescript
+import { createMockStore, MockStore } from 'reduxtoolkit-mockstore';
 
-See the `examples/` directory for complete working examples in both TypeScript and JavaScript.
+let store: MockStore;
 
-## Testing
-
-```bash
-npm test
+beforeEach(() => {
+  store = createMockStore(rootReducer);
+});
 ```
+
+## JavaScript
+
+Works in plain JavaScript too:
+
+```javascript
+const { createMockStore } = require('reduxtoolkit-mockstore');
+
+const store = createMockStore(rootReducer);
+```
+
+## That's it
+
+No configuration, no middleware setup, no extra dependencies (besides `@reduxjs/toolkit`). Just create a store and test your Redux code.
 
 ## License
 
 MIT
-
-## Contributing
-
-Contributions are welcome! Please feel free to submit a Pull Request.
