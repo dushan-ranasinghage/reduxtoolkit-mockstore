@@ -1,8 +1,8 @@
 /**
  * @file index.ts
- * @description
+ * @description Main entry point for reduxtoolkit-mockstore package
  * @author Dushan Ranasinghage
- * @copyright Copyright 2024 - Dushan Ranasinghage All Rights Reserved.
+ * @copyright Copyright 2026 - Dushan Ranasinghage All Rights Reserved.
  */
 
-export * from './Store';
+export { default, createMockStore, type MockStore } from './Store';

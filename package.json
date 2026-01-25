@@ -4,6 +4,14 @@
   "description": "This simplifies Redux testing by providing mock stores for Redux Toolkit applications, facilitating easy unit testing of state changes and actions with redux v5.",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
+  "module": "lib/index.js",
+  "exports": {
+    ".": {
+      "types": "./lib/index.d.ts",
+      "import": "./lib/index.js",
+      "require": "./lib/index.js"
+    }
+  },
   "scripts": {
     "build": "tsc",
     "format": "prettier --write \"src/**/*.(js|ts)\"",
@@ -11,7 +19,7 @@
     "lint:fix": "eslint src --fix --ext .js,.ts",
     "test": "jest --config jest.config.js",
     "prepare": "npm run build",
-    "prepublishOnly": "npm test && npm run lint",
+    "prepublishOnly": "npm test && npm run build && npm run lint",
     "preversion": "npm run lint",
     "version": "npm run format && git add -A src",
     "postversion": "git push && git push --tags"
@@ -47,8 +55,9 @@
     "lib/**/*"
   ],
   "dependencies": {
-    "@reduxjs/toolkit": "^2.2.5",
-    "axios-mock-adapter": "^1.22.0",
-    "react-redux": "^9.1.2"
+    "@reduxjs/toolkit": "^2.2.5"
+  },
+  "peerDependencies": {
+    "@reduxjs/toolkit": "^2.0.0"
   }
 }

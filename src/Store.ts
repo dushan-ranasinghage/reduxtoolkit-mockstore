@@ -1,30 +1,30 @@
 /**
- * @file StoreNext.ts
- * @description
+ * @file Store.ts
+ * @description Mock store implementation using root reducer
  * @author Dushan Ranasinghage
- * @copyright Copyright 2024 - Dushan Ranasinghage All Rights Reserved.
+ * @copyright Copyright 2026 - Dushan Ranasinghage All Rights Reserved.
  */
 
 import { UnknownAction, Reducer } from '@reduxjs/toolkit';
 
-interface MockStore {
+export interface MockStore {
   getState: () => any;
-  // eslint-disable-next-line @typescript-eslint/ban-types
   dispatch: (action: UnknownAction | Function) => Promise<UnknownAction>;
   getActions: () => UnknownAction[];
   clearActions: () => void;
 }
 
-const createMockStore = (rootReducer: Reducer<any, UnknownAction>, initialState?: Partial<any>): MockStore => {
-  let state: any = rootReducer(initialState as any, {
-    type: 'INIT',
+const createMockStore = (rootReducer: Reducer<any, UnknownAction>, initialState?: any): MockStore => {
+  // Redux reducers expect undefined for initial state, not an empty object
+  // If initialState is provided, use it; otherwise pass undefined
+  let state: any = rootReducer(initialState, {
+    type: '@@redux/INIT',
   });
 
   let actions: UnknownAction[] = [];
 
   const store: MockStore = {
     getState: () => state,
-    // eslint-disable-next-line @typescript-eslint/ban-types
     dispatch: async (action: UnknownAction | Function) => {
       if (typeof action === 'function') {
         const result = await (action as any)(store.dispatch, store.getState);
@@ -43,5 +43,6 @@ const createMockStore = (rootReducer: Reducer<any, UnknownAction>, initialState?
   return store;
 };
 
-// Export the createMockStore function
 export default createMockStore;
+
+export { createMockStore };
