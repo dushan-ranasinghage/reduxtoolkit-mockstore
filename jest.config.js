@@ -1,8 +1,18 @@
 // eslint-disable-next-line no-undef
 module.exports = {
+  preset: 'ts-jest',
+  testEnvironment: 'node',
   transform: {
-    '^.+\\.(t|j)s$': 'ts-jest',
+    '^.+\\.ts$': 'ts-jest',
+    '^.+\\.js$': ['ts-jest', {
+      tsconfig: {
+        allowJs: true,
+      },
+    }],
   },
-  testRegex: '(/__tests__/.*|(\\.|/)(test|spec))\\.(t|j)s$',
+  testRegex: '(\\.|/)(test|spec)\\.(t|j)s$',
   moduleFileExtensions: ['ts', 'js', 'json', 'node'],
+  transformIgnorePatterns: [
+    'node_modules/(?!(@reduxjs/toolkit)/)',
+  ],
 };
