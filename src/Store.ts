@@ -7,9 +7,11 @@
 
 import { UnknownAction, Reducer } from '@reduxjs/toolkit';
 
+type ThunkAction = (dispatch: (action: UnknownAction) => Promise<UnknownAction>, getState: () => any) => Promise<UnknownAction> | UnknownAction;
+
 export interface MockStore {
   getState: () => any;
-  dispatch: (action: UnknownAction | Function) => Promise<UnknownAction>;
+  dispatch: (action: UnknownAction | ThunkAction) => Promise<UnknownAction>;
   getActions: () => UnknownAction[];
   clearActions: () => void;
 }
@@ -25,10 +27,10 @@ const createMockStore = (rootReducer: Reducer<any, UnknownAction>, initialState?
 
   const store: MockStore = {
     getState: () => state,
-    dispatch: async (action: UnknownAction | Function) => {
+    dispatch: async (action: UnknownAction | ThunkAction) => {
       if (typeof action === 'function') {
-        const result = await (action as any)(store.dispatch, store.getState);
-        return result;
+        const result = await (action as ThunkAction)(store.dispatch, store.getState);
+        return result as UnknownAction;
       }
       actions.push(action as UnknownAction);
       state = rootReducer(state, action as UnknownAction);
